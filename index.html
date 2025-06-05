@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería Virtual Interactiva: Vincent van Gogh</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuentes personalizadas para una mejor estética */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8; /* Un fondo suave */
+        }
+        .gallery-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; /* Indica que es clicable */
+        }
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed; /* Posición fija para cubrir toda la pantalla */
+            z-index: 1000; /* Asegura que esté encima de todo lo demás */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Permite desplazamiento si el contenido es demasiado grande */
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo semitransparente oscuro */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px; /* Ancho máximo para el contenido del modal */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative; /* Para posicionar el botón de cerrar */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #aaa;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            z-index: 1010; /* Asegura que estén sobre el contenido del modal */
+        }
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .nav-button.left {
+            left: 20px;
+        }
+        .nav-button.right {
+            right: 20px;
+        }
+
+        /* Estilos para el enfoque y la accesibilidad */
+        .gallery-card:focus, .nav-button:focus, .close-button:focus {
+            outline: 2px solid #3b82f6; /* Un borde azul para indicar el enfoque */
+            outline-offset: 2px;
+        }
+
+        /* Responsive adjustments for modal image */
+        .modal-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            .nav-button {
+                font-size: 20px;
+                padding: 8px 12px;
+            }
+            .nav-button.left {
+                left: 10px;
+            }
+            .nav-button.right {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="container mx-auto p-6 md:p-10">
+        <!-- Encabezado de la galería -->
+        <header class="text-center mb-12">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-4 tracking-tight">
+                Galería Virtual de Arte Inclusivo
+            </h1>
+            <h2 class="text-3xl md:text-4xl font-semibold text-gray-700">
+                Vincent van Gogh: Colores que Conectan
+            </h2>
+            <p class="text-lg md:text-xl text-gray-600 mt-4 max-w-3xl mx-auto leading-relaxed">
+                Explora las obras maestras de Vincent van Gogh, un artista cuya visión única y su profunda expresión emocional trascienden barreras, hablando a la condición humana universal a través de cada pincelada vibrante. Haz clic en cualquier obra para ver más detalles.
+            </p>
+        </header>
+
+        <!-- Contenedor de la galería de obras -->
+        <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Obra 1: La Noche Estrellada -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="0">
+                <img src="images/la_noche_estrellada.webp" alt="La Noche Estrellada" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">La Noche Estrellada</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1889</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        Esta obra icónica, creada desde su asilo, transforma la angustia en una visión sublime de esperanza y energía cósmica. Su vibrante cielo nocturno, con la luna y las estrellas girando, es una expresión universal de asombro y la búsqueda de consuelo en la naturaleza. Habla a cualquiera que haya contemplado el cielo nocturno y buscado significado más allá de lo terrenal.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Obra 2: Los Girasoles -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="1">
+                <img src="images/los_girasoles.jpg" alt="Los Girasoles" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">Los Girasoles</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1888</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        Van Gogh pintó varias series de girasoles, simbolizando la gratitud y la amistad. La vitalidad de los colores y la textura de las flores transmiten una alegría y una energía que son universales. Representan la belleza efímera de la vida y la capacidad de encontrar luz incluso en la oscuridad, resonando con la experiencia humana de apreciar los momentos de florecimiento.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Obra 3: El Dormitorio en Arlés -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="2">
+                <img src="images/el_dormitorio_arles.jpg" alt="El Dormitorio en Arlés" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">El Dormitorio en Arlés</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1888</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        Esta serie de pinturas de su dormitorio busca transmitir un sentido de calma y simplicidad. A través de colores planos y una perspectiva intencionadamente sesgada, Van Gogh crea un espacio que invita a la quietud y al descanso. La obra evoca el anhelo universal por un refugio personal y la importancia de la paz en nuestro entorno más íntimo, un sentimiento con el que muchos pueden identificarse.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Obra 4: Retrato del Dr. Gachet -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="3">
+                <img src="images/retrato_dr_gachet.jpg" alt="Retrato del Dr. Gachet" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">Retrato del Dr. Gachet</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1890</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        Van Gogh sintió una profunda conexión con el Dr. Gachet, retratándolo con una expresión melancólica pero compasiva. Esta obra captura la complejidad de la salud mental y la empatía humana. Es una representación cruda y honesta de la fragilidad y la conexión que podemos sentir con aquellos que nos cuidan, haciendo que el tema sea accesible y relevante para cualquiera que haya lidiado con el bienestar emocional.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Obra 5: Los Comedores de Patatas -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="4">
+                <img src="images/los_comedores_patatas.jpg" alt="Los Comedores de Patatas" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">Los Comedores de Patatas</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1885</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        En esta obra temprana, Van Gogh representa la dura realidad de la vida campesina, mostrando el trabajo y la dignidad de las personas humildes. La paleta oscura y las figuras toscas subrayan la autenticidad de su existencia. Esta pintura es 'inclusiva' en el sentido de que da voz y visibilidad a las clases trabajadoras, celebrando la humanidad de quienes a menudo son olvidados, y resonando con temas de justicia social y dignidad del trabajo.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Obra 6: Campo de Trigo con Cuervos -->
+            <div class="gallery-card bg-white rounded-xl overflow-hidden" data-index="5">
+                <img src="images/campo_de_trigo_cuervos.jpg" alt="Campo de Trigo con Cuervos" class="w-full h-64 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/FF0000/FFFFFF?text=Error+al+Cargar+Imagen';">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">Campo de Trigo con Cuervos</h3>
+                    <p class="text-gray-600 text-sm mb-4">Año: 1890</p>
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">
+                        A menudo considerada una de sus últimas obras, esta pintura es poderosa en su ambigüedad y emoción. El cielo tormentoso, los caminos divergentes y los cuervos que vuelan evocan sentimientos de melancolía, libertad y un final inminente. Su capacidad para comunicar emociones tan profundas sin depender de la narración explícita la hace universalmente comprensible para cualquiera que haya experimentado momentos de reflexión profunda o transiciones en la vida.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie de página -->
+        <footer class="text-center mt-12 py-6 text-gray-500 text-sm border-t border-gray-200">
+            <p>&copy; 2025 Galería Virtual. Todas las descripciones son interpretaciones artísticas.</p>
+        </footer>
+    </div>
+
+    <!-- Modal para las obras -->
+    <div id="artModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModalBtn">&times;</span>
+            <button class="nav-button left" id="prevArtBtn">&#10094;</button>
+            <button class="nav-button right" id="nextArtBtn">&#10095;</button>
+            <img id="modalArtImage" src="" alt="" class="modal-image">
+            <h3 id="modalArtTitle" class="text-3xl font-bold text-blue-700 mb-3 text-center"></h3>
+            <p id="modalArtYear" class="text-gray-600 text-base mb-4 text-center"></p>
+            <p id="modalArtDescription" class="text-gray-700 leading-relaxed text-center"></p>
+        </div>
+    </div>
+
+    <script>
+        // Array de objetos para almacenar los datos de las obras
+        const artworks = [
+            {
+                title: "La Noche Estrellada",
+                year: "1889",
+                image: "images/la_noche_estrellada.webp",
+                description: "Esta obra icónica, creada desde su asilo, transforma la angustia en una visión sublime de esperanza y energía cósmica. Su vibrante cielo nocturno, con la luna y las estrellas girando, es una expresión universal de asombro y la búsqueda de consuelo en la naturaleza. Habla a cualquiera que haya contemplado el cielo nocturno y buscado significado más allá de lo terrenal."
+            },
+            {
+                title: "Los Girasoles",
+                year: "1888",
+                image: "images/los_girasoles.jpg",
+                description: "Van Gogh pintó varias series de girasoles, simbolizando la gratitud y la amistad. La vitalidad de los colores y la textura de las flores transmiten una alegría y una energía que son universales. Representan la belleza efímera de la vida y la capacidad de encontrar luz incluso en la oscuridad, resonando con la experiencia humana de apreciar los momentos de florecimiento."
+            },
+            {
+                title: "El Dormitorio en Arlés",
+                year: "1888",
+                image: "images/el_dormitorio_arles.jpg",
+                description: "Esta serie de pinturas de su dormitorio busca transmitir un sentido de calma y simplicidad. A través de colores planos y una perspectiva intencionadamente sesgada, Van Gogh crea un espacio que invita a la quietud y al descanso. La obra evoca el anhelo universal por un refugio personal y la importancia de la paz en nuestro entorno más íntimo, un sentimiento con el que muchos pueden identificarse."
+            },
+            {
+                title: "Retrato del Dr. Gachet",
+                year: "1890",
+                image: "images/retrato_dr_gachet.jpg",
+                description: "Van Gogh sintió una profunda conexión con el Dr. Gachet, retratándolo con una expresión melancólica pero compasiva. Esta obra captura la complejidad de la salud mental y la empatía humana. Es una representación cruda y honesta de la fragilidad y la conexión que podemos sentir con aquellos que nos cuidan, haciendo que el tema sea accesible y relevante para cualquiera que haya lidiado con el bienestar emocional."
+            },
+            {
+                title: "Los Comedores de Patatas",
+                year: "1885",
+                image: "images/los_comedores_patatas.jpg",
+                description: "En esta obra temprana, Van Gogh representa la dura realidad de la vida campesina, mostrando el trabajo y la dignidad de las personas humildes. La paleta oscura y las figuras toscas subrayan la autenticidad de su existencia. Esta pintura es 'inclusiva' en el sentido de que da voz y visibilidad a las clases trabajadoras, celebrando la humanidad de quienes a menudo son olvidados, y resonando con temas de justicia social y dignidad del trabajo."
+            },
+            {
+                title: "Campo de Trigo con Cuervos",
+                year: "1890",
+                image: "images/campo_de_trigo_cuervos.jpg",
+                description: "A menudo considerada una de sus últimas obras, esta pintura es poderosa en su ambigüedad y emoción. El cielo tormentoso, los caminos divergentes y los cuervos que vuelan evocan sentimientos de melancolía, libertad y un final inminente. Su capacidad para comunicar emociones tan profundas sin depender de la narración explícita la hace universalmente comprensible para cualquiera que haya experimentado momentos de reflexión profunda o transiciones en la vida."
+            }
+        ];
+
+        let currentArtworkIndex = 0; // Índice de la obra actualmente mostrada en el modal
+
+        // Obtener elementos del DOM
+        const artModal = document.getElementById('artModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalArtImage = document.getElementById('modalArtImage');
+        const modalArtTitle = document.getElementById('modalArtTitle');
+        const modalArtYear = document.getElementById('modalArtYear');
+        const modalArtDescription = document.getElementById('modalArtDescription');
+        const prevArtBtn = document.getElementById('prevArtBtn');
+        const nextArtBtn = document.getElementById('nextArtBtn');
+        const galleryCards = document.querySelectorAll('.gallery-card');
+
+        // Función para mostrar los detalles de una obra en el modal
+        function showArtworkDetails(index) {
+            if (index >= 0 && index < artworks.length) {
+                currentArtworkIndex = index;
+                const artwork = artworks[currentArtworkIndex];
+                modalArtImage.src = artwork.image;
+                modalArtImage.alt = artwork.title;
+                modalArtTitle.textContent = artwork.title;
+                modalArtYear.textContent = `Año: ${artwork.year}`;
+                modalArtDescription.textContent = artwork.description;
+                artModal.style.display = 'flex'; // Mostrar el modal
+            }
+        }
+
+        // Event Listeners para las tarjetas de la galería
+        galleryCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const index = parseInt(card.dataset.index);
+                showArtworkDetails(index);
+            });
+        });
+
+        // Event Listener para el botón de cerrar modal
+        closeModalBtn.addEventListener('click', () => {
+            artModal.style.display = 'none'; // Ocultar el modal
+        });
+
+        // Event Listener para cerrar el modal al hacer clic fuera del contenido
+        window.addEventListener('click', (event) => {
+            if (event.target == artModal) {
+                artModal.style.display = 'none';
+            }
+        });
+
+        // Event Listener para el botón de obra anterior
+        prevArtBtn.addEventListener('click', () => {
+            let newIndex = currentArtworkIndex - 1;
+            if (newIndex < 0) {
+                newIndex = artworks.length - 1; // Volver al final si es la primera
+            }
+            showArtworkDetails(newIndex);
+        });
+
+        // Event Listener para el botón de obra siguiente
+        nextArtBtn.addEventListener('click', () => {
+            let newIndex = currentArtworkIndex + 1;
+            if (newIndex >= artworks.length) {
+                newIndex = 0; // Volver al inicio si es la última
+            }
+            showArtworkDetails(newIndex);
+        });
+
+        // Habilitar navegación con teclas de flecha cuando el modal está abierto
+        document.addEventListener('keydown', (event) => {
+            if (artModal.style.display === 'flex') { // Solo si el modal está visible
+                if (event.key === 'ArrowLeft') {
+                    prevArtBtn.click();
+                } else if (event.key === 'ArrowRight') {
+                    nextArtBtn.click();
+                } else if (event.key === 'Escape') {
+                    closeModalBtn.click();
+                }
+            }
